@@ -63,12 +63,13 @@ export class AuthService {
   }
 
   async login(userPayload: User): Promise<LoginOutput> {
-    const { email, id: userId } = userPayload;
+    const { email, id: userId, role } = userPayload;
 
     return {
       access_token: this.jwtService.sign({
         email,
         userId,
+        role,
       }),
       refresh_token: await this.createRefreshToken(userId),
     } as LoginOutput;

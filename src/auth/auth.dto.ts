@@ -27,8 +27,8 @@ export class AccessTokenOutput {
   @Field()
   email: string;
 
-  @Field(() => [UserRole])
-  role: UserRole[];
+  @Field(() => UserRole)
+  role: UserRole;
 }
 
 @InputType()

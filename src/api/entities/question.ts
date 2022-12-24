@@ -41,7 +41,7 @@ export class Question {
   @Field({ nullable: true })
   creator: User;
 
-  @OneToMany(() => Tag, (t) => t.question)
+  @OneToMany(() => Tag, (t) => t.id)
   @Field(() => [Tag], { nullable: true })
   tags: Tag[];
 

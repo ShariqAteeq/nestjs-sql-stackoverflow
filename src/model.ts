@@ -20,3 +20,11 @@ export class ConfirmSignUpInput {
   @Field()
   email: string;
 }
+
+@InputType()
+export class AddTagInput {
+  @Field()
+  name: string;
+  @Field({ nullable: true })
+  desc: string;
+}

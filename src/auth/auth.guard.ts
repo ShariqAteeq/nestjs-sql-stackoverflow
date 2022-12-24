@@ -1,3 +1,4 @@
+import { UserRole } from 'src/helpers/constant';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import {
@@ -17,14 +18,6 @@ export class GqlAuthGuard extends AuthGuard('jwt') {
   getRequest(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
 
-    // const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
-    //   context.getHandler(),
-    //   context.getClass(),
-    // ]);
-    // console.log('isPublic', isPublic);
-    // if (isPublic) {
-    //   return ctx.getContext().req;
-    // }
     const authHeader = ctx.getContext().req?.headers?.authorization as string;
     console.log('authHeader', authHeader);
     if (!authHeader) {
@@ -40,6 +33,18 @@ export class GqlAuthGuard extends AuthGuard('jwt') {
     if (isTokenValid === 'TokenExpiredError') {
       throw new HttpException('Token is Expired', HttpStatus.BAD_REQUEST);
     }
+
+    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>('role', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    const user = this.authService.getUserFromAccessToken(token);
+    console.log('user', user);
+
+    if (!requiredRoles.includes(user?.role))
+      throw new HttpException('Forbidden Resource', HttpStatus.UNAUTHORIZED);
+
     return ctx.getContext().req;
   }
 }

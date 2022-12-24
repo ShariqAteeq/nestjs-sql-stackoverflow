@@ -22,6 +22,10 @@ export class Tag {
   @Field({ nullable: true })
   name: string;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  desc: string;
+
   @Column()
   @Field({ nullable: true })
   creator_id: string;
@@ -30,9 +34,9 @@ export class Tag {
   @Field({ nullable: true })
   creator: User;
 
-  @ManyToOne(() => Question, { nullable: true })
-  @Field({ nullable: true })
-  question: Question;
+  // @ManyToOne(() => Question, { nullable: true })
+  // @Field(() => Question, { nullable: true })
+  // question: Question;
 
   @ManyToMany(() => Question, { nullable: true })
   @Field(() => [Question], { nullable: true })
