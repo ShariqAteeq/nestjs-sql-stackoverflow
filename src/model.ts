@@ -28,3 +28,17 @@ export class AddTagInput {
   @Field({ nullable: true })
   desc: string;
 }
+@InputType()
+export class AskQuestionInput {
+  @Field()
+  title: string;
+
+  @Field({ nullable: true })
+  desc: string;
+
+  @Field({ nullable: true })
+  canIAnswer: Boolean;
+
+  @Field(() => [Number])
+  tags: number[];
+}

@@ -1,3 +1,5 @@
+import { QuestionService } from './service/question.service';
+import { QuestionResolver } from './resolvers/question.resolver';
 import { TagResolver } from './resolvers/tag.resolver';
 import { TagService } from './service/tag.service';
 import { Tag } from './entities/tag';
@@ -27,6 +29,8 @@ import { Answer } from './entities/answer';
     TagService,
     TagResolver,
     UserResolver,
+    QuestionResolver,
+    QuestionService,
   ],
   exports: [],
 })

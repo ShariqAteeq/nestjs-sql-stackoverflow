@@ -22,7 +22,7 @@ export class Tag {
   @Field({ nullable: true })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 10000 })
   @Field({ nullable: true })
   desc: string;
 

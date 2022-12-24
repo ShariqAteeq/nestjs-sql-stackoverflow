@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -21,7 +22,7 @@ export class Question {
   @Field({ nullable: true })
   title: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 10000 })
   @Field({ nullable: true })
   desc: string;
 
@@ -33,7 +34,7 @@ export class Question {
   @Field({ nullable: true })
   creator_id: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 0 })
   @Field({ nullable: true })
   viewCount: number;
 
@@ -41,9 +42,16 @@ export class Question {
   @Field({ nullable: true })
   creator: User;
 
-  @OneToMany(() => Tag, (t) => t.id)
-  @Field(() => [Tag], { nullable: true })
+  @Column('simple-array', { nullable: true })
+  tags_ids: number[];
+
+  @Field(() => [Tag])
   tags: Tag[];
+
+  // @OneToMany(() => Tag, (t) => t.id, { nullable: true })
+  // @JoinColumn({ name: 'tags_ids' })
+  // @Field(() => [Tag], { nullable: true })
+  // tags: Tag[];
 
   @CreateDateColumn({
     type: 'timestamp',
