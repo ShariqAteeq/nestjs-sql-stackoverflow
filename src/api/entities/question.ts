@@ -1,46 +1,49 @@
-import { UserRole, UserStatus } from 'src/helpers/constant';
-import { Field, HideField, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Tag } from './tag';
+import { User } from './user';
 
 @ObjectType()
-@Entity('user')
-export class User {
-  @PrimaryGeneratedColumn('uuid')
+@Entity('question')
+export class Question {
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   @Field()
-  id: string;
+  id: number;
 
-  @Column({ unique: true, nullable: true })
+  @Column()
   @Field({ nullable: true })
-  email: string;
-
-  @Column({ nullable: true })
-  @Field(() => UserRole, { nullable: true })
-  role: UserRole;
+  title: string;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
-  profileImg: string;
+  desc: string;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
-  coverImg: string;
+  canIAnswer: Boolean;
 
-  @Column({ unique: true, nullable: true })
+  @Column()
   @Field({ nullable: true })
-  name: string;
+  creator_id: string;
 
   @Column({ nullable: true })
-  @Field(() => UserStatus, { nullable: true })
-  status: UserStatus;
+  @Field({ nullable: true })
+  viewCount: number;
 
-  @Column({ nullable: true })
-  @HideField()
-  password?: string;
+  @ManyToOne(() => User, (u) => u.id, { nullable: true })
+  @Field({ nullable: true })
+  creator: User;
+
+  @OneToMany(() => Tag, (t) => t.question)
+  @Field(() => [Tag], { nullable: true })
+  tags: Tag[];
 
   @CreateDateColumn({
     type: 'timestamp',
