@@ -7,7 +7,7 @@ import { Question } from '../entities/question';
 import { UserService } from './user.service';
 import { VotePostInput } from 'src/model';
 import { CurrentUser } from 'src/decorators/user.decorator';
-import { PostType } from 'src/helpers/constant';
+import { PostType, VoteType } from 'src/helpers/constant';
 import { Comment } from '../entities/comment';
 
 @Injectable()
@@ -22,15 +22,6 @@ export class VoteService {
 
   async votePost(input: VotePostInput, @CurrentUser() user): Promise<Vote> {
     const vote = new Vote();
-
-    const isVoteExist = await this.voteRepo.findOne({
-      where: {
-        creator_id: user?.userId,
-        ...this.getPostKey(input),
-      },
-    });
-    if (isVoteExist)
-      throw new HttpException('you already voted!', HttpStatus.BAD_REQUEST);
 
     const userDetail = await this.userService.getUser(user?.userId);
 
@@ -83,5 +74,45 @@ export class VoteService {
     } else {
       return null;
     }
+  }
+
+  async upVotePost(input: VotePostInput, @CurrentUser() user): Promise<Vote> {
+    const isVoteExist = await this.voteRepo.findOne({
+      where: {
+        creator_id: user?.userId,
+        ...this.getPostKey(input),
+      },
+    });
+    if (isVoteExist)
+      throw new HttpException('you already voted!', HttpStatus.BAD_REQUEST);
+    return await this.votePost(input, user);
+  }
+
+  async downvotePost(input: VotePostInput, @CurrentUser() user): Promise<Vote> {
+    const vote = await this.voteRepo.findOne({
+      where: {
+        creator_id: user?.userId,
+        ...this.getPostKey(input),
+      },
+    });
+    if (vote) {
+      vote.voteType = VoteType.DOWNVOTE;
+      return await this.voteRepo.save(vote);
+    } else {
+      return await this.votePost(input, user);
+    }
+  }
+
+  async removeVote(id: number, @CurrentUser() user): Promise<Boolean> {
+    const isVoteExist = await this.voteRepo.findOne({
+      where: {
+        creator_id: user?.userId,
+        id,
+      },
+    });
+    if (!isVoteExist)
+      throw new HttpException("you didn't vote yet", HttpStatus.NOT_FOUND);
+    await this.voteRepo.delete(id);
+    return true;
   }
 }

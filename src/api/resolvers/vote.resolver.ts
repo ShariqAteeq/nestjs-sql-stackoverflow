@@ -13,14 +13,36 @@ export class VoteResolver {
   constructor(private voteService: VoteService) {}
 
   // ============== MUTATION ============== \\
-  // ====== POST ANSWER ====== \\
+  // ====== UP-VOTE POST ====== \\
   @UseGuards(GqlAuthGuard)
   @Roles(UserRole.USER)
   @Mutation(() => Vote)
-  async votePost(
+  async upVotePost(
     @Args('input') input: VotePostInput,
     @CurrentUser() user,
   ): Promise<Vote> {
-    return await this.voteService.votePost(input, user);
+    return await this.voteService.upVotePost(input, user);
+  }
+
+  // ======  DOWN-VOTE POST ====== \\
+  @UseGuards(GqlAuthGuard)
+  @Roles(UserRole.USER)
+  @Mutation(() => Vote)
+  async downvotePost(
+    @Args('input') input: VotePostInput,
+    @CurrentUser() user,
+  ): Promise<Vote> {
+    return await this.voteService.downvotePost(input, user);
+  }
+
+  // ======  REMOVE VOTE FROM POST ====== \\
+  @UseGuards(GqlAuthGuard)
+  @Roles(UserRole.USER)
+  @Mutation(() => Boolean)
+  async removeVote(
+    @Args('id') id: number,
+    @CurrentUser() user,
+  ): Promise<Boolean> {
+    return await this.voteService.removeVote(id, user);
   }
 }
