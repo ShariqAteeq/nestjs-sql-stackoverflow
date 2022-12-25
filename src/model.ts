@@ -1,5 +1,9 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { VoteType } from './helpers/constant';
+import { Question } from './api/entities/question';
+import { Answer } from './api/entities/answer';
+import { createUnionType, Field, InputType } from '@nestjs/graphql';
 import { PostType, UserRole } from 'src/helpers/constant';
+import { Comment } from './api/entities/comment';
 
 @InputType()
 export class UserSignUpInput {
@@ -60,3 +64,21 @@ export class AddCommentInput {
   @Field({ nullable: true })
   answerId: number;
 }
+@InputType()
+export class VotePostInput {
+  @Field({ nullable: true })
+  questionId: number;
+  @Field({ nullable: true })
+  answerId: number;
+  @Field({ nullable: true })
+  commentId: number;
+  @Field(() => PostType)
+  postType: PostType;
+  @Field(() => VoteType, { nullable: true })
+  voteType: VoteType;
+}
+
+export const PostUnion = createUnionType({
+  name: 'PostUnion',
+  types: () => [Comment, Answer, Question] as const,
+});

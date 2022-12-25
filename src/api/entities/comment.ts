@@ -7,9 +7,11 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from './user';
+import { Vote } from './vote';
 
 @ObjectType()
 @Entity('comment')
@@ -41,6 +43,10 @@ export class Comment {
   @ManyToOne(() => Answer, (u) => u.id, { nullable: true })
   @Field(() => Answer, { nullable: true })
   answer: Answer;
+
+  @OneToMany(() => Vote, (c) => c.comment, { nullable: true })
+  @Field(() => [Vote], { nullable: true })
+  votes: Vote[];
 
   @Column()
   @Field({ nullable: true })

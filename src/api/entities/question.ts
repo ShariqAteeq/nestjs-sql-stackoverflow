@@ -1,3 +1,4 @@
+import { Vote } from './vote';
 import { Answer } from './answer';
 import { Field, ObjectType } from '@nestjs/graphql';
 import {
@@ -67,6 +68,10 @@ export class Question {
   @OneToMany(() => Comment, (c) => c.question, { nullable: true })
   @Field(() => [Comment], { nullable: true })
   comments: Comment[];
+
+  @OneToMany(() => Vote, (c) => c.question, { nullable: true })
+  @Field(() => [Vote], { nullable: true })
+  votes: Vote[];
 
   @Column({ nullable: true })
   @Field({ nullable: true })

@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './user';
 import { Comment } from './comment';
+import { Vote } from './vote';
 
 @ObjectType()
 @Entity('answer')
@@ -29,6 +30,10 @@ export class Answer {
   @OneToMany(() => Comment, (c) => c.answer, { nullable: true })
   @Field(() => [Comment], { nullable: true })
   comments: Comment[];
+
+  @OneToMany(() => Vote, (c) => c.answer, { nullable: true })
+  @Field(() => [Vote], { nullable: true })
+  votes: Vote[];
 
   @Column()
   @Field({ nullable: true })

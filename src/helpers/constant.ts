@@ -67,6 +67,12 @@ export enum ReactionType {
 export enum PostType {
   QUESTION = 'QUESTION',
   ANSWER = 'ANSWER',
+  COMMENT = 'COMMENT',
+}
+
+export enum VoteType {
+  UPVOTE = 'UPVOTE',
+  DOWNVOTE = 'DOWNVOTE',
 }
 
 export interface Mail {
@@ -80,6 +86,9 @@ export interface Mail {
 
 registerEnumType(PostType, {
   name: 'PostType',
+});
+registerEnumType(VoteType, {
+  name: 'VoteType',
 });
 registerEnumType(UserRole, {
   name: 'UserRole',

@@ -1,3 +1,6 @@
+import { VoteService } from './service/vote.service';
+import { VoteResolver } from './resolvers/vote.resolver';
+import { Vote } from './entities/vote';
 import { CommentResolver } from './resolvers/comment.resolver';
 import { AnswerService } from './service/answer.service';
 import { QuestionService } from './service/question.service';
@@ -28,6 +31,7 @@ import { CommentService } from './service/comment.service';
     TypeOrmModule.forFeature([Question]),
     TypeOrmModule.forFeature([Answer]),
     TypeOrmModule.forFeature([Comment]),
+    TypeOrmModule.forFeature([Vote]),
   ],
   providers: [
     UserService,
@@ -41,6 +45,8 @@ import { CommentService } from './service/comment.service';
     AnswerResolver,
     CommentService,
     CommentResolver,
+    VoteResolver,
+    VoteService,
   ],
   exports: [],
 })

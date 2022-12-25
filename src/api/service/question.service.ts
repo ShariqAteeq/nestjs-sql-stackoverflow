@@ -47,8 +47,14 @@ export class QuestionService {
         'answers.creator',
         'lastModifiedby',
         'bestAnswer',
+        'votes',
         'comments',
+        'comments.votes',
+        'comments.creator',
         'answers.comments',
+        'answers.comments.votes',
+        'answers.votes',
+        'answers.comments.creator',
       ],
     });
     if (!question)
