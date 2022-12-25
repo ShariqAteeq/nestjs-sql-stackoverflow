@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from './user';
+import { Comment } from './comment';
 
 @ObjectType()
 @Entity('answer')
@@ -23,6 +25,10 @@ export class Answer {
   @ManyToOne(() => Question, (q) => q.id, { nullable: true })
   @Field(() => Question, { nullable: true })
   question: Question;
+
+  @OneToMany(() => Comment, (c) => c.answer, { nullable: true })
+  @Field(() => [Comment], { nullable: true })
+  comments: Comment[];
 
   @Column()
   @Field({ nullable: true })

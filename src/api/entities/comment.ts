@@ -1,3 +1,5 @@
+import { Answer } from './answer';
+import { Question } from './question';
 import { PostType } from './../../helpers/constant';
 import { Field, ObjectType } from '@nestjs/graphql';
 import {
@@ -26,18 +28,26 @@ export class Comment {
 
   @Column({ nullable: true })
   @Field({ nullable: true })
-  questionId: number;
+  question_Id: number;
+
+  @ManyToOne(() => Question, (u) => u.id, { nullable: true })
+  @Field(() => Question, { nullable: true })
+  question: Question;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
-  answerId: number;
+  answer_Id: number;
+
+  @ManyToOne(() => Answer, (u) => u.id, { nullable: true })
+  @Field(() => Answer, { nullable: true })
+  answer: Answer;
 
   @Column()
   @Field({ nullable: true })
   creator_id: string;
 
   @ManyToOne(() => User, (u) => u.id, { nullable: true })
-  @Field({ nullable: true })
+  @Field(() => User, { nullable: true })
   creator: User;
 
   @CreateDateColumn({

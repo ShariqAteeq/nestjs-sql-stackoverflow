@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Tag } from './tag';
 import { User } from './user';
+import { Comment } from './comment';
 
 @ObjectType()
 @Entity('question')
@@ -52,25 +53,20 @@ export class Question {
   @Field(() => Answer, { nullable: true })
   bestAnswer: Answer;
 
-  // @Column({ nullable: true })
-  // @Field({ nullable: true })
-  // bestAnswer_id: number;
-
   @Column({ nullable: true })
   @Field({ nullable: true })
   bestAnswerSelectedAt: Date;
 
-  @Field(() => [Tag])
+  @Field(() => [Tag], { nullable: true })
   tags: Tag[];
 
   @OneToMany(() => Answer, (a) => a.question, { nullable: true })
   @Field(() => [Answer], { nullable: true })
   answers: Answer[];
 
-  // @OneToMany(() => Tag, (t) => t.id, { nullable: true })
-  // @JoinColumn({ name: 'tags_ids' })
-  // @Field(() => [Tag], { nullable: true })
-  // tags: Tag[];
+  @OneToMany(() => Comment, (c) => c.question, { nullable: true })
+  @Field(() => [Comment], { nullable: true })
+  comments: Comment[];
 
   @Column({ nullable: true })
   @Field({ nullable: true })

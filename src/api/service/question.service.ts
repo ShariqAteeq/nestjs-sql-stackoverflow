@@ -39,10 +39,21 @@ export class QuestionService {
   }
 
   async getQuestion(id: number): Promise<Question> {
-    return await this.questionRepo.findOne({
+    const question = await this.questionRepo.findOne({
       where: { id },
-      relations: ['answers', 'creator', 'answers.creator', 'lastModifiedby'],
+      relations: [
+        'answers',
+        'creator',
+        'answers.creator',
+        'lastModifiedby',
+        'bestAnswer',
+        'comments',
+        'answers.comments',
+      ],
     });
+    if (!question)
+      throw new HttpException('Question not found!', HttpStatus.NOT_FOUND);
+    return question;
   }
 
   async selectBestAnswer(

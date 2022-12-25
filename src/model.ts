@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { UserRole } from 'src/helpers/constant';
+import { PostType, UserRole } from 'src/helpers/constant';
 
 @InputType()
 export class UserSignUpInput {
@@ -48,4 +48,15 @@ export class PostAnswerInput {
   desc: string;
   @Field()
   questionId: number;
+}
+@InputType()
+export class AddCommentInput {
+  @Field()
+  text: string;
+  @Field(() => PostType)
+  postType: PostType;
+  @Field({ nullable: true })
+  questionId: number;
+  @Field({ nullable: true })
+  answerId: number;
 }

@@ -1,3 +1,4 @@
+import { CommentResolver } from './resolvers/comment.resolver';
 import { AnswerService } from './service/answer.service';
 import { QuestionService } from './service/question.service';
 import { QuestionResolver } from './resolvers/question.resolver';
@@ -15,6 +16,8 @@ import { User } from './entities/user';
 import { Question } from './entities/question';
 import { Answer } from './entities/answer';
 import { AnswerResolver } from './resolvers/answer.resolver';
+import { Comment } from './entities/comment';
+import { CommentService } from './service/comment.service';
 
 @Module({
   imports: [
@@ -24,6 +27,7 @@ import { AnswerResolver } from './resolvers/answer.resolver';
     TypeOrmModule.forFeature([Tag]),
     TypeOrmModule.forFeature([Question]),
     TypeOrmModule.forFeature([Answer]),
+    TypeOrmModule.forFeature([Comment]),
   ],
   providers: [
     UserService,
@@ -35,6 +39,8 @@ import { AnswerResolver } from './resolvers/answer.resolver';
     QuestionService,
     AnswerService,
     AnswerResolver,
+    CommentService,
+    CommentResolver,
   ],
   exports: [],
 })
