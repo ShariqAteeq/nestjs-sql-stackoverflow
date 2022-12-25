@@ -1,3 +1,4 @@
+import { Answer } from './answer';
 import { Field, ObjectType } from '@nestjs/graphql';
 import {
   Column,
@@ -6,6 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Tag } from './tag';
@@ -45,13 +47,38 @@ export class Question {
   @Column('simple-array', { nullable: true })
   tags_ids: number[];
 
+  @OneToOne(() => Answer, (ans) => ans.id, { nullable: true })
+  @JoinColumn()
+  @Field(() => Answer, { nullable: true })
+  bestAnswer: Answer;
+
+  // @Column({ nullable: true })
+  // @Field({ nullable: true })
+  // bestAnswer_id: number;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  bestAnswerSelectedAt: Date;
+
   @Field(() => [Tag])
   tags: Tag[];
+
+  @OneToMany(() => Answer, (a) => a.question, { nullable: true })
+  @Field(() => [Answer], { nullable: true })
+  answers: Answer[];
 
   // @OneToMany(() => Tag, (t) => t.id, { nullable: true })
   // @JoinColumn({ name: 'tags_ids' })
   // @Field(() => [Tag], { nullable: true })
   // tags: Tag[];
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  lastModifiedAt: Date;
+
+  @ManyToOne(() => User, (u) => u.id, { nullable: true })
+  @Field({ nullable: true })
+  lastModifiedby: User;
 
   @CreateDateColumn({
     type: 'timestamp',

@@ -1,17 +1,17 @@
-import { Tag } from './../entities/tag';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { UserService } from 'src/api/service/user.service';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Question } from '../entities/question';
 import { AskQuestionInput } from 'src/model';
+import { Answer } from '../entities/answer';
 
 @Injectable()
 export class QuestionService {
   constructor(
     @InjectRepository(Question) private questionRepo: Repository<Question>,
-    // @InjectRepository(Tag) private tagRepo: Repository<Tag>,
+    @InjectRepository(Answer) private answerRepo: Repository<Answer>,
     private userService: UserService,
   ) {}
 
@@ -22,9 +22,6 @@ export class QuestionService {
     const question = new Question();
 
     const userDetail = await this.userService.getUser(user?.userId);
-    console.log('AskQuestionInput', input);
-    // const tags = await this.tagRepo.find({ where: { id: In(input?.tags) } });
-    // console.log('tags', tags);
 
     question.canIAnswer = input?.canIAnswer;
     question.desc = input?.desc;
@@ -42,6 +39,35 @@ export class QuestionService {
   }
 
   async getQuestion(id: number): Promise<Question> {
-    return await this.questionRepo.findOne({ where: { id } });
+    return await this.questionRepo.findOne({
+      where: { id },
+      relations: ['answers', 'creator', 'answers.creator', 'lastModifiedby'],
+    });
+  }
+
+  async selectBestAnswer(
+    answerId: number,
+    questionId: number,
+    @CurrentUser() user,
+  ): Promise<Question> {
+    const answer = await this.answerRepo.findOne({
+      where: { id: answerId },
+    });
+    if (!answer)
+      throw new HttpException('Answer not found!', HttpStatus.NOT_FOUND);
+
+    const question = await this.questionRepo.findOne({
+      where: { id: questionId },
+    });
+
+    if (question.creator_id !== user?.userId)
+      throw new HttpException(
+        'Only owner can select a best answer!',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    question.bestAnswer = answer;
+    question.bestAnswerSelectedAt = new Date();
+    return await this.questionRepo.save(question);
   }
 }

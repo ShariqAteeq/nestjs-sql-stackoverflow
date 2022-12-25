@@ -1,3 +1,4 @@
+import { Question } from './question';
 import { Field, ObjectType } from '@nestjs/graphql';
 import {
   Column,
@@ -18,6 +19,10 @@ export class Answer {
   @Column()
   @Field({ nullable: true })
   desc: string;
+
+  @ManyToOne(() => Question, (q) => q.id, { nullable: true })
+  @Field(() => Question, { nullable: true })
+  question: Question;
 
   @Column()
   @Field({ nullable: true })

@@ -42,3 +42,10 @@ export class AskQuestionInput {
   @Field(() => [Number])
   tags: number[];
 }
+@InputType()
+export class PostAnswerInput {
+  @Field()
+  desc: string;
+  @Field()
+  questionId: number;
+}

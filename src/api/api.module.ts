@@ -1,3 +1,4 @@
+import { AnswerService } from './service/answer.service';
 import { QuestionService } from './service/question.service';
 import { QuestionResolver } from './resolvers/question.resolver';
 import { TagResolver } from './resolvers/tag.resolver';
@@ -13,6 +14,7 @@ import { Token } from './entities/token';
 import { User } from './entities/user';
 import { Question } from './entities/question';
 import { Answer } from './entities/answer';
+import { AnswerResolver } from './resolvers/answer.resolver';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { Answer } from './entities/answer';
     UserResolver,
     QuestionResolver,
     QuestionService,
+    AnswerService,
+    AnswerResolver,
   ],
   exports: [],
 })
