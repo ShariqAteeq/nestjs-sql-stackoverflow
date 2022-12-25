@@ -64,6 +64,11 @@ export enum ReactionType {
   SAD = 'SAD',
 }
 
+export enum PostType {
+  QUESTION = 'QUESTION',
+  ANSWER = 'ANSWER',
+}
+
 export interface Mail {
   to: string;
   subject?: string;
@@ -73,6 +78,9 @@ export interface Mail {
   templateData?: any;
 }
 
+registerEnumType(PostType, {
+  name: 'PostType',
+});
 registerEnumType(UserRole, {
   name: 'UserRole',
 });
