@@ -1,4 +1,4 @@
-import { VoteType } from './helpers/constant';
+import { VoteType, TagFilter } from './helpers/constant';
 import { Question } from './api/entities/question';
 import { Answer } from './api/entities/answer';
 import { createUnionType, Field, InputType, ObjectType } from '@nestjs/graphql';
@@ -82,6 +82,30 @@ export const PostUnion = createUnionType({
   name: 'PostUnion',
   types: () => [Comment, Answer, Question] as const,
 });
+
+@InputType()
+export class ListTagsFilter {
+  @Field(() => TagFilter, { nullable: true })
+  filterBy: TagFilter;
+  @Field({ nullable: true })
+  query: string;
+}
+
+@InputType()
+export class ListQuestionFilter {
+  @Field({ nullable: true })
+  myTags: boolean;
+  @Field({ nullable: true })
+  unAnswered: boolean;
+  @Field({ nullable: true })
+  answered: boolean;
+  @Field({ nullable: true })
+  noAcceptedAnswer: boolean;
+  @Field({ nullable: true })
+  sortByNewest: boolean;
+  @Field({ nullable: true })
+  sortByRecentActivity: boolean;
+}
 
 @ObjectType()
 export class WithPagination {

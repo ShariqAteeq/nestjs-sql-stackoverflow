@@ -6,6 +6,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -64,6 +66,11 @@ export class Question {
   @Field({ nullable: true })
   bestAnswerSelectedAt: Date;
 
+  // @Field(() => [Tag], { nullable: true })
+  // tags: Tag[];
+
+  @ManyToMany(() => Tag, (t) => t.questions, { nullable: true })
+  @JoinTable({ name: 'question_tags' })
   @Field(() => [Tag], { nullable: true })
   tags: Tag[];
 

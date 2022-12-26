@@ -3,16 +3,18 @@ import { CurrentUser } from 'src/decorators/user.decorator';
 import { UserService } from 'src/api/service/user.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Question } from '../entities/question';
-import { AskQuestionInput } from 'src/model';
+import { AskQuestionInput, ListQuestionFilter } from 'src/model';
 import { Answer } from '../entities/answer';
+import { Tag } from '../entities/tag';
 
 @Injectable()
 export class QuestionService {
   constructor(
     @InjectRepository(Question) private questionRepo: Repository<Question>,
     @InjectRepository(Answer) private answerRepo: Repository<Answer>,
+    @InjectRepository(Tag) private tagRepo: Repository<Tag>,
     private userService: UserService,
   ) {}
 
@@ -23,11 +25,13 @@ export class QuestionService {
     const question = new Question();
 
     const userDetail = await this.userService.getUser(user?.userId);
+    const tags = await this.tagRepo.find({ where: { id: In(input?.tags) } });
 
     question.canIAnswer = input?.canIAnswer;
     question.desc = input?.desc;
     question.title = input?.title;
     question.tags_ids = input?.tags;
+    question.tags = tags;
     question.creator_id = user?.userId;
     question.creator = userDetail;
 
@@ -92,11 +96,15 @@ export class QuestionService {
   async listQuestions(
     limit: number = 5,
     offset: number = 0,
+    filter: ListQuestionFilter,
   ): Promise<Pagination<Question>> {
     const [results, total] = await this.questionRepo.findAndCount({
       take: limit,
       skip: offset,
       relations: ['creator', 'lastModifiedby', 'bestAnswer', 'votes'],
+      // where: {
+      //   tags_ids: In(filter)
+      // }
     });
 
     return new Pagination<Question>({

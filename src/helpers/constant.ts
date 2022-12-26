@@ -70,6 +70,11 @@ export enum PostType {
   COMMENT = 'COMMENT',
 }
 
+export enum TagFilter {
+  NAME = 'NAME',
+  POPULAR = 'POPULAR',
+}
+
 export enum VoteType {
   UPVOTE = 'UPVOTE',
   DOWNVOTE = 'DOWNVOTE',
@@ -84,6 +89,9 @@ export interface Mail {
   templateData?: any;
 }
 
+registerEnumType(TagFilter, {
+  name: 'TagFilter',
+});
 registerEnumType(PostType, {
   name: 'PostType',
 });

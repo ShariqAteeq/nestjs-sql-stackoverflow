@@ -38,9 +38,9 @@ export class Tag {
   // @Field(() => Question, { nullable: true })
   // question: Question;
 
-  @ManyToMany(() => Question, { nullable: true })
+  @ManyToMany(() => Question, (q) => q.tags, { nullable: true })
   @Field(() => [Question], { nullable: true })
-  @JoinTable()
+  // @JoinTable()
   questions: Question[];
 
   @CreateDateColumn({

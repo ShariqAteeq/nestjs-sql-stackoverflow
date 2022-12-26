@@ -1,4 +1,4 @@
-import { ListQuestionsOutput } from './../../model';
+import { ListQuestionFilter, ListQuestionsOutput } from './../../model';
 import { Pagination } from './../../paginate/pagination';
 import { QuestionService } from './../service/question.service';
 import { Question } from './../entities/question';
@@ -73,15 +73,16 @@ export class QuestionResolver {
   async listQuestions(
     @Args('limit', { nullable: true }) limit: number,
     @Args('offset', { nullable: true }) offset: number,
+    @Args('filter', { nullable: true }) filter: ListQuestionFilter,
   ): Promise<Pagination<Question>> {
-    return await this.questionService.listQuestions(limit, offset);
+    return await this.questionService.listQuestions(limit, offset, filter);
   }
 
   // ====== FIELD RESOLVERS ====== \\
-  @ResolveField()
-  async tags(@Parent() ques: Question): Promise<Tag[]> {
-    return await this.tagRepo.find({ where: { id: In(ques.tags_ids) } });
-  }
+  // @ResolveField()
+  // async tags(@Parent() ques: Question): Promise<Tag[]> {
+  //   return await this.tagRepo.find({ where: { id: In(ques.tags_ids) } });
+  // }
   @ResolveField()
   async answersCount(@Parent() ques: Question): Promise<number> {
     return await this.questionService.getQuestionAnswers(ques.id);
