@@ -1,7 +1,7 @@
 import { VoteType } from './helpers/constant';
 import { Question } from './api/entities/question';
 import { Answer } from './api/entities/answer';
-import { createUnionType, Field, InputType } from '@nestjs/graphql';
+import { createUnionType, Field, InputType, ObjectType } from '@nestjs/graphql';
 import { PostType, UserRole } from 'src/helpers/constant';
 import { Comment } from './api/entities/comment';
 
@@ -82,3 +82,24 @@ export const PostUnion = createUnionType({
   name: 'PostUnion',
   types: () => [Comment, Answer, Question] as const,
 });
+
+@ObjectType()
+export class WithPagination {
+  @Field()
+  total: number;
+
+  @Field()
+  page_total: number;
+
+  @Field()
+  limit: number;
+
+  @Field()
+  offset: number;
+}
+
+@ObjectType()
+export class ListQuestionsOutput extends WithPagination {
+  @Field(() => [Question])
+  results: Question[];
+}

@@ -1,3 +1,5 @@
+import { ListQuestionsOutput } from './../../model';
+import { Pagination } from './../../paginate/pagination';
 import { QuestionService } from './../service/question.service';
 import { Question } from './../entities/question';
 import { GqlAuthGuard } from './../../auth/auth.guard';
@@ -66,9 +68,22 @@ export class QuestionResolver {
     return await this.questionService.getQuestion(id);
   }
 
+  // ====== GET LIST OF QUESTIONS ====== \\
+  @Query(() => ListQuestionsOutput)
+  async listQuestions(
+    @Args('limit', { nullable: true }) limit: number,
+    @Args('offset', { nullable: true }) offset: number,
+  ): Promise<Pagination<Question>> {
+    return await this.questionService.listQuestions(limit, offset);
+  }
+
   // ====== FIELD RESOLVERS ====== \\
   @ResolveField()
   async tags(@Parent() ques: Question): Promise<Tag[]> {
     return await this.tagRepo.find({ where: { id: In(ques.tags_ids) } });
+  }
+  @ResolveField()
+  async answersCount(@Parent() ques: Question): Promise<number> {
+    return await this.questionService.getQuestionAnswers(ques.id);
   }
 }

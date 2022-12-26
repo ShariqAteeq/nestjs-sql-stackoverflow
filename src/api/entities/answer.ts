@@ -27,6 +27,10 @@ export class Answer {
   @Field(() => Question, { nullable: true })
   question: Question;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  question_id: number;
+
   @OneToMany(() => Comment, (c) => c.answer, { nullable: true })
   @Field(() => [Comment], { nullable: true })
   comments: Comment[];

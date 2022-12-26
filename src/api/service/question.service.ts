@@ -1,3 +1,4 @@
+import { Pagination } from './../../paginate/pagination';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { UserService } from 'src/api/service/user.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
@@ -86,5 +87,27 @@ export class QuestionService {
     question.bestAnswer = answer;
     question.bestAnswerSelectedAt = new Date();
     return await this.questionRepo.save(question);
+  }
+
+  async listQuestions(
+    limit: number = 5,
+    offset: number = 0,
+  ): Promise<Pagination<Question>> {
+    const [results, total] = await this.questionRepo.findAndCount({
+      take: limit,
+      skip: offset,
+      relations: ['creator', 'lastModifiedby', 'bestAnswer', 'votes'],
+    });
+
+    return new Pagination<Question>({
+      results,
+      total,
+      limit,
+      offset,
+    });
+  }
+
+  async getQuestionAnswers(id): Promise<number> {
+    return await this.answerRepo.count({ where: { question_id: id } });
   }
 }

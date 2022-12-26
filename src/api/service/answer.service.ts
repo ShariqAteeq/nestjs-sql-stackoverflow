@@ -34,6 +34,7 @@ export class AnswerService {
     answer.question = question;
     answer.creator_id = userId;
     answer.creator = userDetail;
+    answer.question_id = input?.questionId;
 
     // Updating Question Modified time;
     question.lastModifiedAt = new Date();

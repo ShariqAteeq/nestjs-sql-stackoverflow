@@ -42,6 +42,12 @@ export class Question {
   @Field({ nullable: true })
   viewCount: number;
 
+  @Field({ nullable: true })
+  answersCount: number;
+
+  @Field({ nullable: true })
+  votesCount: number;
+
   @ManyToOne(() => User, (u) => u.id, { nullable: true })
   @Field({ nullable: true })
   creator: User;
