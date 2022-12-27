@@ -14,6 +14,8 @@ import { CurrentUser } from 'src/decorators/user.decorator';
 import { UseGuards } from '@nestjs/common';
 import { Roles } from 'src/decorators/roles.decorator';
 import { UserRole } from 'src/helpers/constant';
+import { Pagination } from 'src/paginate/pagination';
+import { Question } from '../entities/question';
 
 @Resolver(() => Tag)
 export class TagResolver {
@@ -38,6 +40,12 @@ export class TagResolver {
     return await this.tagService.listTags(filter);
   }
 
+  // ====== GET TAGS ====== \\
+  @Query(() => Tag)
+  async getTag(@Args('id') id: number): Promise<Tag> {
+    return await this.tagService.getTag(id);
+  }
+
   @ResolveField()
   async askedTodayQuestionCount(@Parent() tag: Tag): Promise<number> {
     return await this.tagService.askedTodayQuestionCount(tag.id);
@@ -49,5 +57,17 @@ export class TagResolver {
   @ResolveField()
   async totalQuestionCount(@Parent() tag: Tag): Promise<number> {
     return await this.tagService.totalQuestionCount(tag.id);
+  }
+  @ResolveField()
+  async questionsList(
+    @Parent() tag: Tag,
+    @Args('filter', { nullable: true }) filter: ListTagsFilter,
+  ): Promise<Pagination<Question>> {
+    // console.log('args', filter);
+    return await this.tagService.listTagQuestions(
+      tag.id,
+      filter?.quesLimit,
+      filter?.quesOffset,
+    );
   }
 }

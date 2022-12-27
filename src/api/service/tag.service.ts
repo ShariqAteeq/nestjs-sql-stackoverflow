@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { Tag } from '../entities/tag';
 import _ = require('lodash');
 import * as moment from 'moment';
+import { Pagination } from 'src/paginate/pagination';
 
 @Injectable()
 export class TagService {
@@ -71,8 +72,6 @@ export class TagService {
       .andWhere('question.logCreatedAt >=  CURDATE()')
       .getCount();
 
-    console.log('momet', moment().startOf('isoWeek'));
-
     return res;
   }
 
@@ -95,5 +94,33 @@ export class TagService {
       .where('tag.id = :id', { id })
       .getCount();
     return res;
+  }
+
+  async getTag(id: number): Promise<Tag> {
+    return await this.tagRepo.findOneOrFail({ where: { id } });
+  }
+
+  async listTagQuestions(
+    id: number,
+    limit: number = 5,
+    offset: number = 0,
+  ): Promise<Pagination<Question>> {
+    const [results, total] = await this.questionRepo.findAndCount({
+      take: limit,
+      skip: offset,
+      relations: ['creator', 'lastModifiedby', 'bestAnswer', 'votes'],
+      where: {
+        tags: {
+          id,
+        },
+      },
+    });
+
+    return new Pagination<Question>({
+      results,
+      total,
+      limit,
+      offset,
+    });
   }
 }

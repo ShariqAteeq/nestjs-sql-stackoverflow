@@ -102,9 +102,6 @@ export class QuestionService {
       take: limit,
       skip: offset,
       relations: ['creator', 'lastModifiedby', 'bestAnswer', 'votes'],
-      // where: {
-      //   tags_ids: In(filter)
-      // }
     });
 
     return new Pagination<Question>({

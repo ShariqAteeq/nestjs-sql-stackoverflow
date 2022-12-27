@@ -89,6 +89,10 @@ export class ListTagsFilter {
   filterBy: TagFilter;
   @Field({ nullable: true })
   query: string;
+  @Field({ nullable: true })
+  quesLimit: number;
+  @Field({ nullable: true })
+  quesOffset: number;
 }
 
 @InputType()
@@ -124,6 +128,12 @@ export class WithPagination {
 
 @ObjectType()
 export class ListQuestionsOutput extends WithPagination {
+  @Field(() => [Question])
+  results: Question[];
+}
+
+@ObjectType()
+export class ListTagsQuestion extends WithPagination {
   @Field(() => [Question])
   results: Question[];
 }

@@ -10,6 +10,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ListTagsQuestion } from 'src/model';
 
 @ObjectType()
 @Entity('tag')
@@ -39,9 +40,12 @@ export class Tag {
   // question: Question;
 
   @ManyToMany(() => Question, (q) => q.tags, { nullable: true })
-  @Field(() => [Question], { nullable: true })
-  // @JoinTable()
+  // @Field(() => [Question], { nullable: true })
+  @JoinTable()
   questions: Question[];
+
+  @Field(() => ListTagsQuestion, { nullable: true })
+  questionsList: ListTagsQuestion;
 
   @Field({ nullable: true })
   totalQuestionCount: number;

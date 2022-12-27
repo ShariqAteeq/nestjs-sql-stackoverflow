@@ -55,6 +55,7 @@ export class Question {
   creator: User;
 
   @Column('simple-array', { nullable: true })
+  @Field(() => [Number], { nullable: true })
   tags_ids: number[];
 
   @OneToOne(() => Answer, (ans) => ans.id, { nullable: true })
