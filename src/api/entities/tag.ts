@@ -43,6 +43,15 @@ export class Tag {
   // @JoinTable()
   questions: Question[];
 
+  @Field({ nullable: true })
+  totalQuestionCount: number;
+
+  @Field({ nullable: true })
+  askedTodayQuestionCount: number;
+
+  @Field({ nullable: true })
+  thisWeekQuestionCount: number;
+
   @CreateDateColumn({
     type: 'timestamp',
     nullable: true,

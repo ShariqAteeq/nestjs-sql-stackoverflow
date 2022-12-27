@@ -5,13 +5,16 @@ import { CurrentUser } from './../../decorators/user.decorator';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddTagInput, ListTagsFilter } from 'src/model';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Tag } from '../entities/tag';
+import _ = require('lodash');
+import * as moment from 'moment';
 
 @Injectable()
 export class TagService {
   constructor(
     @InjectRepository(Tag) private tagRepo: Repository<Tag>,
+    @InjectRepository(Question) private questionRepo: Repository<Question>,
     private userService: UserService,
   ) {}
 
@@ -37,24 +40,60 @@ export class TagService {
   }
 
   async listTags(filter: ListTagsFilter): Promise<Tag[]> {
-    const tags = await this.tagRepo
+    let tagQuery = this.tagRepo
       .createQueryBuilder('tag')
       .leftJoinAndSelect('tag.questions', 'question')
-      .groupBy('question.id') // here is where we grup by the tag so we can count
-      .addGroupBy('question.id')
-      .select('question.id, count(question.id)') // here is where we count :)
-      .orderBy('"count"', 'DESC')
-      .getMany();
-    console.log('tags', tags);
-    // return await this.tagRepo.find({
-    //   relations: ['questions'],
-    //   where: { name: filter?.query ? Like(`${filter?.query}%`) : undefined },
+      .loadRelationCountAndMap('tag.questionCount', 'tag.questions');
 
-    //   order: {
-    //     questions: { id:  },
-    //     name: filter?.filterBy === TagFilter.NAME ? 'ASC' : undefined,
-    //   },
-    // });
-    return tags;
+    if (filter?.query) {
+      tagQuery = tagQuery.where('tag.name like :name', {
+        name: `${filter?.query}%`,
+      });
+    }
+
+    if (filter?.filterBy === TagFilter.NAME) {
+      tagQuery = tagQuery.orderBy('tag.name', 'ASC');
+    }
+
+    let results = await tagQuery.getMany();
+    if (filter?.filterBy === TagFilter.POPULAR) {
+      results = _.orderBy(results, ['questionCount'], ['desc']);
+    }
+
+    return results;
+  }
+
+  async askedTodayQuestionCount(id: number): Promise<number> {
+    const res = await this.questionRepo
+      .createQueryBuilder('question')
+      .leftJoinAndSelect('question.tags', 'tag')
+      .where('tag.id = :id', { id })
+      .andWhere('question.logCreatedAt >=  CURDATE()')
+      .getCount();
+
+    console.log('momet', moment().startOf('isoWeek'));
+
+    return res;
+  }
+
+  async thisWeekQuestionCount(id: number): Promise<number> {
+    const res = await this.questionRepo
+      .createQueryBuilder('question')
+      .leftJoinAndSelect('question.tags', 'tag')
+      .where('tag.id = :id', { id })
+      .andWhere('question.logCreatedAt >=  :weekDate', {
+        weekDate: moment().startOf('isoWeek').format('YYYY-MM-DD'),
+      })
+      .getCount();
+    return res;
+  }
+
+  async totalQuestionCount(id: number): Promise<number> {
+    const res = await this.questionRepo
+      .createQueryBuilder('question')
+      .leftJoinAndSelect('question.tags', 'tag')
+      .where('tag.id = :id', { id })
+      .getCount();
+    return res;
   }
 }
