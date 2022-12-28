@@ -1,11 +1,17 @@
+import { Answer } from './answer';
+import { Question } from './question';
 import { UserRole, UserStatus } from 'src/helpers/constant';
 import { Field, HideField, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Tag } from './tag';
 
 @ObjectType()
 @Entity('user')
@@ -25,6 +31,32 @@ export class User {
   @Column({ nullable: true })
   @Field({ nullable: true })
   profileImg: string;
+
+  @OneToMany(() => Question, (q) => q.creator, { nullable: true })
+  @Field(() => [Question], { nullable: true })
+  questions: Question[];
+
+  @OneToMany(() => Answer, (q) => q.creator, { nullable: true })
+  @Field(() => [Answer], { nullable: true })
+  answers: Answer[];
+
+  @Column('simple-array', { nullable: true })
+  @Field(() => [Number], { nullable: true })
+  watchedTagsIds: number[];
+
+  @ManyToMany(() => Tag, (t) => t.users, { nullable: true })
+  @JoinTable({ name: 'user_watched_tags' })
+  @Field(() => [Tag], { nullable: true })
+  watchedTags: Tag[];
+
+  @Column('simple-array', { nullable: true })
+  @Field(() => [Number], { nullable: true })
+  ignoredTagsIds: number[];
+
+  @ManyToMany(() => Tag, (t) => t.users, { nullable: true })
+  @JoinTable({ name: 'user_ignored_tags' })
+  @Field(() => [Tag], { nullable: true })
+  ignoredTags: Tag[];
 
   @Column({ nullable: true })
   @Field({ nullable: true })

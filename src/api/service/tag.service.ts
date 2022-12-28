@@ -1,11 +1,12 @@
+import { Answer } from './../entities/answer';
+import { User } from 'src/api/entities/user';
 import { Question } from './../entities/question';
 import { TagFilter } from './../../helpers/constant';
-import { UserService } from 'src/api/service/user.service';
 import { CurrentUser } from './../../decorators/user.decorator';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddTagInput, ListTagsFilter } from 'src/model';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Tag } from '../entities/tag';
 import _ = require('lodash');
 import * as moment from 'moment';
@@ -16,7 +17,8 @@ export class TagService {
   constructor(
     @InjectRepository(Tag) private tagRepo: Repository<Tag>,
     @InjectRepository(Question) private questionRepo: Repository<Question>,
-    private userService: UserService,
+    @InjectRepository(Answer) private answerRepo: Repository<Answer>,
+    @InjectRepository(User) private userRepo: Repository<User>,
   ) {}
 
   async addTag(input: AddTagInput, @CurrentUser() user): Promise<Tag> {
@@ -30,7 +32,7 @@ export class TagService {
       );
 
     const tag = new Tag();
-    const userDetail = await this.userService.getUser(user?.userId);
+    const userDetail = await this.userRepo.findOneBy({ id: user?.userId });
 
     tag.name = input?.name;
     tag.desc = input?.desc;
@@ -123,4 +125,76 @@ export class TagService {
       offset,
     });
   }
+
+  async getTagById(id: number): Promise<Tag> {
+    return await this.tagRepo.findOne({ where: { id } });
+  }
+
+  async watchTag(id: number, @CurrentUser() user): Promise<User> {
+    const tag = await this.getTagById(id);
+    const userDetail = await this.userRepo.findOne({
+      where: { id: user?.userId },
+      relations: ['ignoredTags', 'watchedTags'],
+    });
+    if (userDetail?.watchedTags?.find((t) => +t.id === id)) return userDetail;
+    if (userDetail?.ignoredTags.find((t) => +t.id === id)) {
+      userDetail.ignoredTags = userDetail.ignoredTags.filter(
+        (t) => +t.id !== id,
+      );
+      userDetail.ignoredTagsIds = userDetail?.ignoredTagsIds.filter(
+        (x) => +x !== id,
+      );
+    }
+    userDetail.watchedTags =
+      userDetail?.watchedTags?.length > 0
+        ? [...userDetail?.watchedTags, tag]
+        : [tag];
+    userDetail.watchedTagsIds =
+      userDetail?.watchedTagsIds?.length > 0
+        ? [...userDetail?.watchedTagsIds, id]
+        : [id];
+
+    await this.userRepo.save(userDetail);
+    return userDetail;
+  }
+
+  async ignoreTag(id: number, @CurrentUser() user): Promise<User> {
+    const tag = await this.getTagById(id);
+    const userDetail = await this.userRepo.findOne({
+      where: { id: user?.userId },
+      relations: ['watchedTags', 'ignoredTags'],
+    });
+    if (userDetail?.ignoredTags?.find((t) => +t.id === id)) return userDetail;
+    if (userDetail?.watchedTags?.find((t) => +t.id === id)) {
+      userDetail.watchedTags = userDetail.watchedTags.filter(
+        (t) => +t.id !== id,
+      );
+      console.log('userDetail', userDetail.watchedTags);
+      console.log('userDetail', userDetail.watchedTagsIds);
+      userDetail.watchedTagsIds = userDetail?.watchedTagsIds.filter(
+        (x) => +x !== id,
+      );
+    }
+
+    userDetail.ignoredTags =
+      userDetail?.ignoredTags?.length > 0
+        ? [...userDetail?.ignoredTags, tag]
+        : [tag];
+    userDetail.ignoredTagsIds =
+      userDetail?.ignoredTagsIds?.length > 0 &&
+      !userDetail?.ignoredTagsIds?.find((x) => +x === id)
+        ? [...userDetail?.ignoredTagsIds, id]
+        : [id];
+    await this.userRepo.save(userDetail);
+    return userDetail;
+  }
+
+  // async userPostCount(id: number): Promise<number> {
+  //   const questionsCount = await this.questionRepo.count({
+  //     where: { tags_ids: In([id]) },
+  //   });
+  //   const answerRepo = await this.answerRepo.count({
+  //     where: { tags_ids: In([id]) },
+  //   });
+  // }
 }

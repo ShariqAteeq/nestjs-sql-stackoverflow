@@ -51,7 +51,7 @@ export class Question {
   votesCount: number;
 
   @ManyToOne(() => User, (u) => u.id, { nullable: true })
-  @Field({ nullable: true })
+  @Field(() => User, { nullable: true })
   creator: User;
 
   @Column('simple-array', { nullable: true })
@@ -92,7 +92,7 @@ export class Question {
   lastModifiedAt: Date;
 
   @ManyToOne(() => User, (u) => u.id, { nullable: true })
-  @Field({ nullable: true })
+  @Field(() => User, { nullable: true })
   lastModifiedby: User;
 
   @CreateDateColumn({

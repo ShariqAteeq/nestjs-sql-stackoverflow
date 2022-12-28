@@ -1,3 +1,4 @@
+import { User } from 'src/api/entities/user';
 import { GqlAuthGuard } from './../../auth/auth.guard';
 import { AddTagInput, ListTagsFilter } from 'src/model';
 import { TagService } from './../service/tag.service';
@@ -9,6 +10,8 @@ import {
   Query,
   ResolveField,
   Parent,
+  Context,
+  Info,
 } from '@nestjs/graphql';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { UseGuards } from '@nestjs/common';
@@ -16,11 +19,14 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { UserRole } from 'src/helpers/constant';
 import { Pagination } from 'src/paginate/pagination';
 import { Question } from '../entities/question';
+import { info } from 'console';
 
 @Resolver(() => Tag)
 export class TagResolver {
   constructor(private tagService: TagService) {}
 
+  // ============== MUTATION ============== \\
+  // ====== ADD TAGS BY ADMIN ====== \\
   @UseGuards(GqlAuthGuard)
   @Roles(UserRole.ADMIN)
   @Mutation(() => Tag)
@@ -29,6 +35,23 @@ export class TagResolver {
     @CurrentUser() user,
   ): Promise<Tag> {
     return await this.tagService.addTag(input, user);
+  }
+
+  // ============== MUTATION ============== \\
+  // ====== WATCH TAG ====== \\
+  @UseGuards(GqlAuthGuard)
+  @Roles(UserRole.USER)
+  @Mutation(() => User)
+  async watchTag(@Args('id') id: number, @CurrentUser() user): Promise<User> {
+    return await this.tagService.watchTag(id, user);
+  }
+
+  // ====== IGNORE TAG ====== \\
+  @UseGuards(GqlAuthGuard)
+  @Roles(UserRole.USER)
+  @Mutation(() => User)
+  async ignoreTag(@Args('id') id: number, @CurrentUser() user): Promise<User> {
+    return await this.tagService.ignoreTag(id, user);
   }
 
   // ============== QUERY ============== \\
@@ -63,7 +86,6 @@ export class TagResolver {
     @Parent() tag: Tag,
     @Args('filter', { nullable: true }) filter: ListTagsFilter,
   ): Promise<Pagination<Question>> {
-    // console.log('args', filter);
     return await this.tagService.listTagQuestions(
       tag.id,
       filter?.quesLimit,

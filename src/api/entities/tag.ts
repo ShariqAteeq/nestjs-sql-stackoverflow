@@ -32,7 +32,7 @@ export class Tag {
   creator_id: string;
 
   @ManyToOne(() => User, (u) => u.id, { nullable: true })
-  @Field({ nullable: true })
+  @Field(() => User, { nullable: true })
   creator: User;
 
   // @ManyToOne(() => Question, { nullable: true })
@@ -43,6 +43,10 @@ export class Tag {
   // @Field(() => [Question], { nullable: true })
   @JoinTable()
   questions: Question[];
+
+  @ManyToMany(() => User, (q) => q.watchedTags, { nullable: true })
+  @Field(() => [User], { nullable: true })
+  users: User[];
 
   @Field(() => ListTagsQuestion, { nullable: true })
   questionsList: ListTagsQuestion;
@@ -55,6 +59,9 @@ export class Tag {
 
   @Field({ nullable: true })
   thisWeekQuestionCount: number;
+
+  @Field({ nullable: true })
+  userPostCount: number;
 
   @CreateDateColumn({
     type: 'timestamp',
