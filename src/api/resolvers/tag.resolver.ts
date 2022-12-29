@@ -1,6 +1,6 @@
 import { User } from 'src/api/entities/user';
 import { GqlAuthGuard } from './../../auth/auth.guard';
-import { AddTagInput, ListTagsFilter } from 'src/model';
+import { AddTagInput, ListTagsFilter, TagPostsUnion } from 'src/model';
 import { TagService } from './../service/tag.service';
 import { Tag } from './../entities/tag';
 import {
@@ -10,8 +10,6 @@ import {
   Query,
   ResolveField,
   Parent,
-  Context,
-  Info,
 } from '@nestjs/graphql';
 import { CurrentUser } from 'src/decorators/user.decorator';
 import { UseGuards } from '@nestjs/common';
@@ -19,7 +17,6 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { UserRole } from 'src/helpers/constant';
 import { Pagination } from 'src/paginate/pagination';
 import { Question } from '../entities/question';
-import { info } from 'console';
 
 @Resolver(() => Tag)
 export class TagResolver {
@@ -73,14 +70,35 @@ export class TagResolver {
   async askedTodayQuestionCount(@Parent() tag: Tag): Promise<number> {
     return await this.tagService.askedTodayQuestionCount(tag.id);
   }
+
   @ResolveField()
   async thisWeekQuestionCount(@Parent() tag: Tag): Promise<number> {
     return await this.tagService.thisWeekQuestionCount(tag.id);
   }
+
   @ResolveField()
   async totalQuestionCount(@Parent() tag: Tag): Promise<number> {
     return await this.tagService.totalQuestionCount(tag.id);
   }
+
+  @UseGuards(GqlAuthGuard)
+  @ResolveField()
+  async userPostCount(
+    @Parent() tag: Tag,
+    @CurrentUser() user,
+  ): Promise<number> {
+    return await this.tagService.userPostCountOnTag(tag.id, user);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @ResolveField()
+  async tagPosts(
+    @Parent() tag: Tag,
+    @CurrentUser() user,
+  ): Promise<Array<typeof TagPostsUnion>> {
+    return await this.tagService.getTagPosts(tag.id, user);
+  }
+
   @ResolveField()
   async questionsList(
     @Parent() tag: Tag,

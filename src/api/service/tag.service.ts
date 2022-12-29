@@ -5,7 +5,7 @@ import { TagFilter } from './../../helpers/constant';
 import { CurrentUser } from './../../decorators/user.decorator';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AddTagInput, ListTagsFilter } from 'src/model';
+import { AddTagInput, ListTagsFilter, TagPostsUnion } from 'src/model';
 import { Repository, In } from 'typeorm';
 import { Tag } from '../entities/tag';
 import _ = require('lodash');
@@ -104,13 +104,19 @@ export class TagService {
 
   async listTagQuestions(
     id: number,
-    limit: number = 5,
+    limit: number = 10000,
     offset: number = 0,
   ): Promise<Pagination<Question>> {
     const [results, total] = await this.questionRepo.findAndCount({
       take: limit,
       skip: offset,
-      relations: ['creator', 'lastModifiedby', 'bestAnswer', 'votes'],
+      relations: [
+        'creator',
+        'lastModifiedby',
+        'bestAnswer',
+        'votes',
+        'answers',
+      ],
       where: {
         tags: {
           id,
@@ -189,12 +195,43 @@ export class TagService {
     return userDetail;
   }
 
-  // async userPostCount(id: number): Promise<number> {
-  //   const questionsCount = await this.questionRepo.count({
-  //     where: { tags_ids: In([id]) },
-  //   });
-  //   const answerRepo = await this.answerRepo.count({
-  //     where: { tags_ids: In([id]) },
-  //   });
-  // }
+  async userPostCountOnTag(id: number, @CurrentUser() user): Promise<number> {
+    const res = await this.tagRepo.findOne({
+      where: { id, questions: { creator_id: user?.userId } },
+      relations: ['questions', 'questions.answers'],
+    });
+
+    let count = res?.questions?.length ?? 0;
+    res?.questions?.forEach((x) => (count += x.answers.length));
+
+    return count;
+  }
+
+  async getTagPosts(
+    id: number,
+    @CurrentUser() user,
+  ): Promise<Array<typeof TagPostsUnion>> {
+    const res = await this.tagRepo.findOne({
+      where: { id, questions: { creator_id: user?.userId } },
+      relations: ['questions', 'questions.answers'],
+    });
+
+    const result = [];
+    res?.questions?.forEach((x) => {
+      if (x?.answers?.length > 0) {
+        x.answers.forEach((y) => {
+          result.push({
+            __typename: 'Answer',
+            ...y,
+          });
+        });
+      }
+      result.push({
+        __typename: 'Question',
+        ...x,
+      });
+    });
+    const sortedByNewest = _.orderBy(result, ['logCreatedAt'], ['desc']);
+    return sortedByNewest;
+  }
 }

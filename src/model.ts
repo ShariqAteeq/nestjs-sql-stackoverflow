@@ -83,6 +83,11 @@ export const PostUnion = createUnionType({
   types: () => [Comment, Answer, Question] as const,
 });
 
+export const TagPostsUnion = createUnionType({
+  name: 'TagPostsUnion',
+  types: () => [Answer, Question] as const,
+});
+
 @InputType()
 export class ListTagsFilter {
   @Field(() => TagFilter, { nullable: true })

@@ -10,7 +10,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ListTagsQuestion } from 'src/model';
+import { ListTagsQuestion, TagPostsUnion } from 'src/model';
 
 @ObjectType()
 @Entity('tag')
@@ -62,6 +62,9 @@ export class Tag {
 
   @Field({ nullable: true })
   userPostCount: number;
+
+  @Field(() => [TagPostsUnion], { nullable: true })
+  tagPosts: typeof TagPostsUnion[];
 
   @CreateDateColumn({
     type: 'timestamp',

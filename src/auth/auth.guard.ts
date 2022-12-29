@@ -19,13 +19,13 @@ export class GqlAuthGuard extends AuthGuard('jwt') {
     const ctx = GqlExecutionContext.create(context);
 
     const authHeader = ctx.getContext().req?.headers?.authorization as string;
-    console.log('authHeader', authHeader);
+    // console.log('authHeader', authHeader);
     if (!authHeader) {
       throw new HttpException('Token not Found', HttpStatus.NOT_FOUND);
     }
 
     const token = authHeader.split(' ')[1];
-    console.log('token', token);
+    // console.log('token', token);
 
     const isTokenValid = this.authService.validateToken(token);
     // console.log('isTokenValid', isTokenValid);
@@ -40,9 +40,13 @@ export class GqlAuthGuard extends AuthGuard('jwt') {
     ]);
 
     const user = this.authService.getUserFromAccessToken(token);
-    console.log('user', user);
+    // console.log('user', user);
 
-    if (!requiredRoles.includes(user?.role))
+    if (!requiredRoles) {
+      return ctx.getContext().req;
+    }
+
+    if (!requiredRoles?.includes(user?.role))
       throw new HttpException('Forbidden Resource', HttpStatus.UNAUTHORIZED);
 
     return ctx.getContext().req;
