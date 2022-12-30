@@ -21,6 +21,7 @@ import { Answer } from './entities/answer';
 import { AnswerResolver } from './resolvers/answer.resolver';
 import { Comment } from './entities/comment';
 import { CommentService } from './service/comment.service';
+import { VoteSubscriber } from './subscribers/vote.subscriber';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CommentService } from './service/comment.service';
     CommentResolver,
     VoteResolver,
     VoteService,
+    VoteSubscriber,
   ],
   exports: [],
 })
