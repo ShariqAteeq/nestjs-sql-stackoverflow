@@ -1,3 +1,4 @@
+import { ContextModule } from './../context/context.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -13,6 +14,7 @@ import { DatabaseOrmModule } from './database.orm.module';
     }),
     ApiModule,
     AuthModule,
+    ContextModule,
     DatabaseOrmModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

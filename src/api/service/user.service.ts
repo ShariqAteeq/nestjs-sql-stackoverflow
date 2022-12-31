@@ -7,6 +7,7 @@ import { Token } from '../entities/token';
 import * as moment from 'moment';
 import { UserStatus } from 'src/helpers/constant';
 import { UserSignUpInput } from 'src/model';
+import { CurrentUser } from 'src/decorators/user.decorator';
 @Injectable()
 export class UserService {
   constructor(
@@ -65,5 +66,9 @@ export class UserService {
       expiresAt: moment().add(5, 'days').toDate(),
     });
     return await this.TokenRepo.save(token);
+  }
+
+  async getLoggedInUSer(@CurrentUser() user) {
+    return user;
   }
 }

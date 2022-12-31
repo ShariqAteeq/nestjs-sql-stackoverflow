@@ -1,3 +1,5 @@
+import { UserContextService } from './../service/context.service';
+import { UserService } from './../service/user.service';
 import {
   REPUTATION_TYPES,
   REPUTATION_VALUES,
@@ -13,11 +15,10 @@ import {
 } from 'typeorm';
 import { Vote } from '../entities/vote';
 import { User } from '../entities/user';
-import { CurrentUser } from 'src/decorators/user.decorator';
 
 @EventSubscriber()
 export class VoteSubscriber implements EntitySubscriberInterface<Vote> {
-  constructor(dataSource: DataSource) {
+  constructor(dataSource: DataSource, private userService: UserContextService) {
     dataSource.subscribers.push(this);
   }
 
@@ -55,6 +56,7 @@ export class VoteSubscriber implements EntitySubscriberInterface<Vote> {
   async afterInsert(event: InsertEvent<Vote>) {
     const { entity, manager } = event;
     console.log('entity', entity);
+    console.log('user', this.userService.userId);
 
     const user = await manager
       .getRepository(User)

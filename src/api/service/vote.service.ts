@@ -1,3 +1,4 @@
+import { UserContextService } from 'src/api/service/context.service';
 import { Vote } from './../entities/vote';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,6 +19,7 @@ export class VoteService {
     @InjectRepository(Answer) private answerRepo: Repository<Answer>,
     @InjectRepository(Comment) private commentRepo: Repository<Comment>,
     private userService: UserService,
+    private csService: UserContextService,
   ) {}
 
   async votePost(input: VotePostInput, @CurrentUser() user): Promise<Vote> {
@@ -77,6 +79,7 @@ export class VoteService {
   }
 
   async upVotePost(input: VotePostInput, @CurrentUser() user): Promise<Vote> {
+    console.log('context in upvote', this.csService.userId);
     const isVoteExist = await this.voteRepo.findOne({
       where: {
         creator_id: user?.userId,

@@ -1,3 +1,4 @@
+import { UserContextService } from './service/context.service';
 import { ReputationResolver } from './resolvers/reputation.resolver';
 import { ReputationService } from './service/reputation.service';
 import { Reputation } from './entities/reputation';
@@ -55,6 +56,7 @@ import { VoteSubscriber } from './subscribers/vote.subscriber';
     VoteSubscriber,
     ReputationService,
     ReputationResolver,
+    UserContextService,
   ],
   exports: [],
 })
