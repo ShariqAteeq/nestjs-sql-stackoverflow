@@ -81,6 +81,15 @@ export class VotePostInput {
 export const PostUnion = createUnionType({
   name: 'PostUnion',
   types: () => [Comment, Answer, Question] as const,
+  resolveType(value) {
+    if (value.title) {
+      return Question;
+    }
+    if (value.desc) {
+      return Answer;
+    }
+    return null;
+  },
 });
 
 export const TagPostsUnion = createUnionType({

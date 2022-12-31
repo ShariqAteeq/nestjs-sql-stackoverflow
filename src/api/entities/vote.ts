@@ -56,7 +56,7 @@ export class Vote {
   creator_id: string;
 
   @ManyToOne(() => User, (u) => u.id, { nullable: true })
-  @Field({ nullable: true })
+  @Field(() => User, { nullable: true })
   creator: User;
 
   @CreateDateColumn({

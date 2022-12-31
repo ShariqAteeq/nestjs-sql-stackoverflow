@@ -1,3 +1,6 @@
+import { ReputationResolver } from './resolvers/reputation.resolver';
+import { ReputationService } from './service/reputation.service';
+import { Reputation } from './entities/reputation';
 import { VoteService } from './service/vote.service';
 import { VoteResolver } from './resolvers/vote.resolver';
 import { Vote } from './entities/vote';
@@ -33,6 +36,7 @@ import { VoteSubscriber } from './subscribers/vote.subscriber';
     TypeOrmModule.forFeature([Answer]),
     TypeOrmModule.forFeature([Comment]),
     TypeOrmModule.forFeature([Vote]),
+    TypeOrmModule.forFeature([Reputation]),
   ],
   providers: [
     UserService,
@@ -49,6 +53,8 @@ import { VoteSubscriber } from './subscribers/vote.subscriber';
     VoteResolver,
     VoteService,
     VoteSubscriber,
+    ReputationService,
+    ReputationResolver,
   ],
   exports: [],
 })
