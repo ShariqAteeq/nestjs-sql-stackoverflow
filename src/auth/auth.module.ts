@@ -1,3 +1,4 @@
+import { Reputation } from './../api/entities/reputation';
 import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -20,6 +21,7 @@ const passportModule = PassportModule.register({ defaultStrategy: 'jwt' });
     forwardRef(() => ApiModule),
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Token]),
+    TypeOrmModule.forFeature([Reputation]),
     passportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
@@ -32,12 +34,12 @@ const passportModule = PassportModule.register({ defaultStrategy: 'jwt' });
     AuthResolver,
     AuthService,
     JwtStrategy,
-    UserContextService,
+    // UserContextService,
     // {
     //   provide: 'APP_GUARD',
     //   useClass: GqlAuthGuard,
     // },
   ],
-  exports: [passportModule, AuthService, UserService, UserContextService],
+  exports: [passportModule, AuthService],
 })
 export class AuthModule {}

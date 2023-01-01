@@ -1,3 +1,4 @@
+import { Reputation } from './../entities/reputation';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,6 +14,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Token) private TokenRepo: Repository<Token>,
+    @InjectRepository(Reputation) private repRepo: Repository<Reputation>,
   ) {}
 
   async create(payload: UserSignUpInput): Promise<User> {
@@ -70,5 +72,15 @@ export class UserService {
 
   async getLoggedInUSer(@CurrentUser() user) {
     return user;
+  }
+
+  async getReputationCount(id: string): Promise<number> {
+    const rep = await this.repRepo
+      .createQueryBuilder('rep')
+      .where('rep.user_id = :user_id', { user_id: id })
+      .select('SUM(rep.reputationValue)', 'totalRepCount')
+      .getRawOne();
+    console.log('id in getReputationCount', id);
+    return +rep.totalRepCount;
   }
 }

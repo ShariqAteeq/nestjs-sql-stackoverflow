@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-// import { User } from '../entities/user';
-
-@Injectable()
+import { Scope } from '@nestjs/common/interfaces/scope-options.interface';
+@Injectable({ scope: Scope.DEFAULT })
 export class UserContextService {
   userId: string;
 }

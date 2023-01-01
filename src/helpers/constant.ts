@@ -88,6 +88,9 @@ export interface Mail {
   templateId?: string;
   templateData?: any;
 }
+export enum Action {
+  Vote = 'vote',
+}
 
 registerEnumType(TagFilter, {
   name: 'TagFilter',

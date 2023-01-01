@@ -1,4 +1,3 @@
-import { UserContextService } from 'src/api/service/context.service';
 import { Vote } from './../entities/vote';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,7 +18,6 @@ export class VoteService {
     @InjectRepository(Answer) private answerRepo: Repository<Answer>,
     @InjectRepository(Comment) private commentRepo: Repository<Comment>,
     private userService: UserService,
-    private csService: UserContextService,
   ) {}
 
   async votePost(input: VotePostInput, @CurrentUser() user): Promise<Vote> {
@@ -38,6 +36,13 @@ export class VoteService {
       });
       if (!question)
         throw new HttpException('Question not found!', HttpStatus.NOT_FOUND);
+
+      if (this.amICreator(question?.creator_id, user?.userId))
+        throw new HttpException(
+          'you cannot vote for your own post!',
+          HttpStatus.BAD_REQUEST,
+        );
+
       vote.question_Id = input?.questionId;
       vote.question = question;
     } else if (input?.postType === PostType.ANSWER) {
@@ -47,6 +52,12 @@ export class VoteService {
       if (!answer)
         throw new HttpException('Answer not found!', HttpStatus.NOT_FOUND);
 
+      if (this.amICreator(answer?.creator_id, user?.userId))
+        throw new HttpException(
+          'you cannot vote for your own post!',
+          HttpStatus.BAD_REQUEST,
+        );
+
       vote.answer_Id = input?.answerId;
       vote.answer = answer;
     } else if (input?.postType === PostType.COMMENT) {
@@ -55,6 +66,12 @@ export class VoteService {
       });
       if (!comment)
         throw new HttpException('Comment not found!', HttpStatus.NOT_FOUND);
+
+      if (this.amICreator(comment?.creator_id, user?.userId))
+        throw new HttpException(
+          'you cannot vote for your own post!',
+          HttpStatus.BAD_REQUEST,
+        );
 
       vote.comment_Id = input?.commentId;
       vote.comment = comment;
@@ -79,7 +96,6 @@ export class VoteService {
   }
 
   async upVotePost(input: VotePostInput, @CurrentUser() user): Promise<Vote> {
-    console.log('context in upvote', this.csService.userId);
     const isVoteExist = await this.voteRepo.findOne({
       where: {
         creator_id: user?.userId,
@@ -117,5 +133,9 @@ export class VoteService {
       throw new HttpException("you didn't vote yet", HttpStatus.NOT_FOUND);
     await this.voteRepo.delete(id);
     return true;
+  }
+
+  amICreator(creator: string, currentUser: string) {
+    return creator === currentUser ? true : false;
   }
 }

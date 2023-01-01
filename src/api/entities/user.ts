@@ -62,6 +62,9 @@ export class User {
   @Field({ nullable: true })
   coverImg: string;
 
+  @Field({ nullable: true, defaultValue: 1 })
+  reputationsCount: number;
+
   @Column({ unique: true, nullable: true })
   @Field({ nullable: true })
   name: string;

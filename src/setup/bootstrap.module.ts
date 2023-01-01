@@ -14,7 +14,7 @@ import { DatabaseOrmModule } from './database.orm.module';
     }),
     ApiModule,
     AuthModule,
-    ContextModule,
+    // ContextModule,
     DatabaseOrmModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

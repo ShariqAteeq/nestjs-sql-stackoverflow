@@ -1,5 +1,4 @@
 import { UserContextService } from './../service/context.service';
-import { UserService } from './../service/user.service';
 import {
   REPUTATION_TYPES,
   REPUTATION_VALUES,
@@ -26,7 +25,14 @@ export class VoteSubscriber implements EntitySubscriberInterface<Vote> {
     return Vote;
   }
 
-  getReputationTypeAndValue(postType: PostType, voteType: VoteType) {
+  // async beforeInsert(event: InsertEvent<Vote>){
+  // }
+
+  getReputationTypeAndValue(
+    postType: PostType,
+    voteType: VoteType,
+    userId?: string,
+  ) {
     if (postType === PostType.QUESTION && voteType === VoteType.UPVOTE) {
       return {
         reputationType: REPUTATION_TYPES.QUESTION_VOTED_UP,
@@ -47,35 +53,58 @@ export class VoteSubscriber implements EntitySubscriberInterface<Vote> {
     }
     if (postType === PostType.ANSWER && voteType === VoteType.DOWNVOTE) {
       return {
-        reputationType: REPUTATION_TYPES.ANSWER_VOTE_DOWN,
-        reputationValue: REPUTATION_VALUES.ANSWER_VOTE_DOWN,
+        reputationType: this.amICreator(userId, this.userService.userId)
+          ? REPUTATION_TYPES.YOU_VOTE_DOWN_ANSWER
+          : REPUTATION_TYPES.ANSWER_VOTE_DOWN,
+        reputationValue: this.amICreator(userId, this.userService.userId)
+          ? REPUTATION_VALUES.YOU_VOTE_DOWN_ANSWER
+          : REPUTATION_VALUES.ANSWER_VOTE_DOWN,
       };
     }
   }
 
-  async afterInsert(event: InsertEvent<Vote>) {
-    const { entity, manager } = event;
-    console.log('entity', entity);
-    console.log('user', this.userService.userId);
+  amICreator(creator: string, currentUser: string) {
+    return creator === currentUser ? true : false;
+  }
 
-    const user = await manager
-      .getRepository(User)
-      .findOneBy({ id: entity.creator_id });
+  async addReputationInDB(
+    payload: Vote,
+    userId: string,
+    event: InsertEvent<Vote>,
+  ) {
+    const { manager } = event;
+    const user = await manager.getRepository(User).findOneBy({ id: userId });
 
     const reputation = new Reputation();
-    if (entity.question_Id) reputation.postId = entity.question_Id;
-    if (entity.answer_Id) reputation.postId = entity.answer_Id;
-    if (entity.comment_Id) reputation.postId = entity.comment_Id;
-    reputation.postType = entity.postType;
+    if (payload.question_Id) reputation.postId = payload.question_Id;
+    if (payload.answer_Id) reputation.postId = payload.answer_Id;
+    if (payload.comment_Id) reputation.postId = payload.comment_Id;
+    reputation.postType = payload.postType;
     reputation.user = user;
     reputation.user_id = user.id;
     const { reputationType, reputationValue } = this.getReputationTypeAndValue(
-      entity.postType,
-      entity.voteType,
+      payload.postType,
+      payload.voteType,
+      userId,
     );
     reputation.reputationType = reputationType;
     reputation.reputationValue = reputationValue;
 
     await manager.getRepository(Reputation).save(reputation);
+  }
+
+  async afterInsert(event: InsertEvent<Vote>) {
+    const { entity } = event;
+    console.log('entity', entity);
+    console.log('user', this.userService.userId);
+
+    await this.addReputationInDB(entity, entity?.creator_id, event);
+    if (
+      this.amICreator(entity?.creator_id, this.userService.userId) &&
+      entity.postType === PostType.ANSWER &&
+      entity.voteType === VoteType.DOWNVOTE
+    ) {
+      await this.addReputationInDB(entity, this.userService.userId, event);
+    }
   }
 }

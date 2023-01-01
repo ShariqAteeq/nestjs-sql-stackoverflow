@@ -26,6 +26,7 @@ import { AnswerResolver } from './resolvers/answer.resolver';
 import { Comment } from './entities/comment';
 import { CommentService } from './service/comment.service';
 import { VoteSubscriber } from './subscribers/vote.subscriber';
+import { CaslAbilityFactory } from './service/caslAbility.service';
 
 @Module({
   imports: [
@@ -57,7 +58,8 @@ import { VoteSubscriber } from './subscribers/vote.subscriber';
     ReputationService,
     ReputationResolver,
     UserContextService,
+    CaslAbilityFactory,
   ],
-  exports: [],
+  exports: [UserContextService],
 })
 export class ApiModule {}
